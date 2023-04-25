@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">MealApp</string>
+    <string name="login">Логин</string>
+    <string name="enter">Войти</string>
+    <string name="password">Пароль</string>
+    <string name="register">Зарегестрироваться</string>
+</resources>
