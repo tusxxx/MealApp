@@ -17,4 +17,5 @@ sealed class Screen(val route: String, val icon: ImageVector? = null) {
     // Auth flow
     object Login : Screen("login")
     object Register : Screen("register")
+    object Order : Screen("order")
 }
