@@ -1,4 +1,4 @@
-package com.tusxapps.mealapp.domain.profile
+package com.tusxapps.mealapp.domain.user
 
 import com.tusxapps.mealapp.domain.meal.Meal
 
