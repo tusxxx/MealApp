@@ -1,18 +1,19 @@
 package com.tusxapps.mealapp.ui.composables
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.Card
+import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -31,53 +32,52 @@ fun MealCard(meal: Meal, onMealClick: (Meal) -> Unit) {
     val colors = listOf(
         Color.Transparent,
         Color.Transparent,
-        Color.Transparent,
-        MaterialTheme.colorScheme.surface
+        MaterialTheme.colorScheme.surface.copy(0.9f)
     )
-    Card(
-        onClick = { onMealClick(meal) },
-        modifier = Modifier.size(width = 180.dp, height = 160.dp)
-    ) {
-        Box {
-            AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                    .data(meal.imageUrl)
-                    .crossfade(true)
-                    .build(),
-                contentDescription = null,
-                modifier = Modifier
-                    .fillMaxSize(),
-                contentScale = ContentScale.Crop
-            )
-
+    ElevatedCard(onClick = { onMealClick(meal) }) {
+        Column {
             Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .drawBehind {
-                        drawRect(Brush.verticalGradient(colors))
-                    }
+                    .fillMaxWidth()
+                    .height(height = 160.dp)
             ) {
-                Text(
-                    text = meal.name,
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(14.dp)
-                        .widthIn(max = 120.dp),
-                    color =  MaterialTheme.colorScheme.onSurface,
-                    fontSize = 18.sp,
-                    overflow = TextOverflow.Ellipsis,
-                    fontWeight = FontWeight.Bold
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current).data(meal.imageUrl)
+                        .crossfade(true).build(),
+                    contentDescription = null,
+                    modifier = Modifier.fillMaxSize(),
+                    contentScale = ContentScale.Crop
                 )
-                Text(
-                    text = meal.price.toString(), modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(14.dp)
-                        .widthIn(40.dp),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    fontSize = 18.sp,
-                    overflow = TextOverflow.Ellipsis
-                )
+
+                Box(modifier = Modifier
+                    .fillMaxSize()
+                    .drawWithContent {
+                        drawRect(Brush.verticalGradient(colors))
+                    })
             }
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = meal.name,
+                modifier = Modifier
+                    .padding(horizontal = 16.dp),
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = 18.sp,
+                overflow = TextOverflow.Ellipsis,
+                fontWeight = FontWeight.Bold,
+                maxLines = 1
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = meal.price.toString(),
+                modifier = Modifier
+                    .padding(horizontal = 16.dp),
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = 18.sp,
+                overflow = TextOverflow.Ellipsis,
+                fontWeight = FontWeight.Medium,
+                maxLines = 1
+            )
+            Spacer(Modifier.height(4.dp))
         }
     }
 }

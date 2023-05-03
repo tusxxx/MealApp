@@ -1,23 +1,30 @@
 package com.tusxapps.mealapp.data
 
-import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import com.tusxapps.mealapp.data.database.RestaurantDatabase
 import com.tusxapps.mealapp.data.database.meal.MealSW
 import com.tusxapps.mealapp.data.database.user.UserSW
 import com.tusxapps.mealapp.domain.meal.Meal
-import com.tusxapps.mealapp.domain.user.Cart
 import com.tusxapps.mealapp.domain.user.User
-import java.lang.reflect.Type
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
-
-suspend fun UserSW.toDomain(database: RestaurantDatabase) = User(
+private val json = Json { allowStructuredMapKeys = true }
+fun UserSW.toDomain() = User(
     id = id,
     login = login,
     password = password,
     phone = phone,
     isAdmin = isAdmin,
-    cart = mealIds.toCart(database)
+    cart = json.decodeFromString(cartJson)
+)
+
+fun User.toSW() = UserSW(
+    id = id,
+    login = login,
+    password = password,
+    phone = phone,
+    isAdmin = isAdmin,
+    cartJson = json.encodeToString(cart)
 )
 
 fun MealSW.toDomain() = Meal(
@@ -35,17 +42,3 @@ fun Meal.toSW() = MealSW(
     price = price,
     imageUrl = imageUrl
 )
-
-suspend fun String.toCart(database: RestaurantDatabase): Cart {
-    val type: Type = object : TypeToken<List<String>>() {}.type
-    val mealIds = Gson().fromJson<List<String>>(this, type)
-    val meals = database.MealDao().getAll()
-        .filter { mealIds.contains(it.id.toString()) }
-        .map { it.toDomain() }
-    return Cart(
-        meals = meals,
-        totalPrice = meals.sumOf { it.price }
-    )
-}
-
-fun Cart.toMealIds() = this.meals.map { it.id }

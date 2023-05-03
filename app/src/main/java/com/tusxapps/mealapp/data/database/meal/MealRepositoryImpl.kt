@@ -9,7 +9,7 @@ import com.tusxapps.mealapp.domain.meal.MealRepository
 class MealRepositoryImpl(private val database: RestaurantDatabase) : MealRepository {
     override suspend fun getAll(): Result<List<Meal>> =
         try {
-            val mealSWs = database.MealDao().getAll()
+            val mealSWs = database.mealDao().getAll()
             if (mealSWs.isEmpty()) { //TODO
                 addMeals()
             }
@@ -20,7 +20,7 @@ class MealRepositoryImpl(private val database: RestaurantDatabase) : MealReposit
 
     override suspend fun createMeal(meal: Meal): Result<Unit> =
         try {
-            database.MealDao().insertOne(meal.toSW())
+            database.mealDao().insertOne(meal.toSW())
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -28,7 +28,7 @@ class MealRepositoryImpl(private val database: RestaurantDatabase) : MealReposit
 
     override suspend fun updateMeal(meal: Meal): Result<Unit> =
         try {
-            database.MealDao().updateMeal(meal.toSW())
+            database.mealDao().updateMeal(meal.toSW())
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
@@ -36,14 +36,14 @@ class MealRepositoryImpl(private val database: RestaurantDatabase) : MealReposit
 
     override suspend fun deleteMeal(meal: Meal): Result<Unit> =
         try {
-            database.MealDao().deleteMeal(meal.toSW())
+            database.mealDao().deleteMeal(meal.toSW())
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }
 
     private suspend fun addMeals() {
-        database.MealDao().insertAll(
+        database.mealDao().insertAll(
             listOf(
                 MealSW(
                     id = 1,

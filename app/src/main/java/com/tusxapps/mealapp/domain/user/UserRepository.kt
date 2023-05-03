@@ -4,4 +4,6 @@ interface UserRepository {
     suspend fun login(login: String, password: String): Result<Unit>
     suspend fun register(login: String, password: String, phone: String): Result<Unit>
     suspend fun getCurrentUser(): Result<User>
+
+    suspend fun saveCartForCurrentUser(cart: Cart): Result<Unit>
 }

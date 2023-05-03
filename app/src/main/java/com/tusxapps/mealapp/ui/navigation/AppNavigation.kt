@@ -3,7 +3,6 @@ package com.tusxapps.mealapp.ui.navigation
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -14,7 +13,10 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tusxapps.mealapp.ui.auth.login.LoginScreen
+import com.tusxapps.mealapp.ui.main.cart.CartScreen
 import com.tusxapps.mealapp.ui.main.home.HomeScreen
+import com.tusxapps.mealapp.ui.main.meal.MealScreen
+import com.tusxapps.mealapp.ui.main.order.OrderScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -42,13 +44,24 @@ fun AppNavigation() {
                     HomeScreen(navController = navController, viewModel = hiltViewModel())
                 }
                 composable(Screen.Cart.route) {
-                    Text(text = "cart")
+                    CartScreen(navController = navController, viewModel = hiltViewModel())
                 }
                 composable(
                     route = Screen.Meal.route,
-                    arguments = listOf(navArgument("mealName") { type = NavType.StringType })
+                    arguments = listOf(navArgument("mealId") { type = NavType.IntType })
                 ) {
-                    it.arguments?.getString("mealName")?.let { it1 -> Text(text = it1) }
+                    it.arguments?.getInt("mealId")?.let { mealName ->
+                        MealScreen(
+                            navController = navController,
+                            viewModel = hiltViewModel(),
+                            mealId = mealName
+                        )
+                    }
+                }
+                composable(
+                    route = Screen.Order.route
+                ) {
+                    OrderScreen(navController = navController, viewModel = hiltViewModel())
                 }
             }
         }

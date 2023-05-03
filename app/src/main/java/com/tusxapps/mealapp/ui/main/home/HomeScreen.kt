@@ -55,7 +55,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
 
     HomeScreen(
         state = state,
-        onMealClick = { navController.navigate(Screen.Meal.createRoute(it.name)) },
+        onMealClick = { navController.navigate(Screen.Meal.createRoute(it.id)) },
         onSearchValueChange = viewModel::onSearchValueChange,
         onFilterSelect = viewModel::onFilterSelect
     )
