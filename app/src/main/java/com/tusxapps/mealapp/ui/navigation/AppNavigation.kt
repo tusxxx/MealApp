@@ -48,13 +48,13 @@ fun AppNavigation() {
                 }
                 composable(
                     route = Screen.Meal.route,
-                    arguments = listOf(navArgument("mealName") { type = NavType.StringType })
+                    arguments = listOf(navArgument("mealId") { type = NavType.IntType })
                 ) {
-                    it.arguments?.getString("mealName")?.let { mealName ->
+                    it.arguments?.getInt("mealId")?.let { mealName ->
                         MealScreen(
                             navController = navController,
                             viewModel = hiltViewModel(),
-                            mealName = mealName
+                            mealId = mealName
                         )
                     }
                 }

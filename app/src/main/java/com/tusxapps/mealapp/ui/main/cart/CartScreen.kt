@@ -54,7 +54,7 @@ fun CartScreen(navController: NavController, viewModel: CartViewModel) {
         onMinusItemClick = viewModel::onMinusItemClick,
         onPlusItemClick = viewModel::onPlusItemClick,
         onBuyClick = {},
-        onMealClick = { navController.navigate(Screen.Meal.createRoute(it.name)) },
+        onMealClick = { navController.navigate(Screen.Meal.createRoute(it.id)) },
         onBuyAllClick = { navController.navigate(Screen.Order.route) }
     )
 }
@@ -67,10 +67,11 @@ private fun CartScreen(
     onPlusItemClick: (Meal) -> Unit,
     onBuyClick: (Meal) -> Unit,
     onMealClick: (Meal) -> Unit,
-    onBuyAllClick: () -> Unit,
+    onBuyAllClick: () -> Unit
 ) {
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize(),
         topBar = { CartTopBar(state = state) }) { paddingValues ->
         Box(
             modifier = Modifier

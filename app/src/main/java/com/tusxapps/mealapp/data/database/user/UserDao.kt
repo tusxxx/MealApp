@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 
 @Dao
 interface UserDao {
@@ -18,6 +19,9 @@ interface UserDao {
 
     @Query("DELETE FROM usersw")
     suspend fun deleteAll()
+
+    @Update
+    suspend fun update(user: UserSW)
 
     @Transaction
     suspend fun update(newUsers: List<UserSW>) {

@@ -9,8 +9,8 @@ sealed class Screen(val route: String, val icon: ImageVector? = null) {
 
     // Main flow
     object Home : Screen("home", Icons.Filled.Home)
-    object Meal : Screen("meal/{mealName}") {
-        fun createRoute(mealName: String) = "meal/$mealName"
+    object Meal : Screen("meal/{mealId}") {
+        fun createRoute(mealId: Int) = "meal/$mealId"
     }
     object Cart : Screen("cart", Icons.Filled.ShoppingCart)
 
