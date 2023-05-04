@@ -1,5 +1,6 @@
 package com.tusxapps.mealapp.ui.main.meal
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,13 +35,19 @@ import com.tusxapps.mealapp.R
 @Composable
 fun MealScreen(navController: NavController, viewModel: MealViewModel, mealId: Int) {
     val state by viewModel.state.collectAsState()
+    val context = LocalContext.current
+    val toastText = stringResource(R.string.added_to_cart)
 
     LaunchedEffect(mealId) {
         viewModel.setMeal(mealId)
     }
     MealScreen(
         state = state,
-        onAddToCartClick = viewModel::onAddToCartClick
+        onAddToCartClick = {
+            viewModel.onAddToCartClick()
+            Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
+            navController.popBackStack()
+        }
     )
 }
 
