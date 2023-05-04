@@ -1,8 +1,10 @@
 package com.tusxapps.mealapp.data
 
 import com.tusxapps.mealapp.data.database.meal.MealSW
+import com.tusxapps.mealapp.data.database.order.OrderSW
 import com.tusxapps.mealapp.data.database.user.UserSW
 import com.tusxapps.mealapp.domain.meal.Meal
+import com.tusxapps.mealapp.domain.order.Order
 import com.tusxapps.mealapp.domain.user.User
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
@@ -41,4 +43,18 @@ fun Meal.toSW() = MealSW(
     description = description,
     price = price,
     imageUrl = imageUrl
+)
+
+fun OrderSW.toDomain() = Order(
+    address = address,
+    date = date,
+    cart = json.decodeFromString(cartJson),
+    userId = userId
+)
+
+fun Order.toSW() = OrderSW(
+    date = date,
+    address = address,
+    cartJson = json.encodeToString(cart),
+    userId = userId
 )

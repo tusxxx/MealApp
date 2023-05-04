@@ -6,5 +6,6 @@ data class OrderScreenState(
     val isSBPSelected: Boolean = false,
     val isCardSelected: Boolean = false,
     val isManualBuySelected: Boolean = true,
-    val isDialogShowed: Boolean = false
+    val isDialogShowed: Boolean = false,
+    val isHaveActiveOrders: Boolean = false,
 )

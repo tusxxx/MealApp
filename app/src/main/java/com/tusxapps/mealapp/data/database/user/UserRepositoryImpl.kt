@@ -1,10 +1,10 @@
 package com.tusxapps.mealapp.data.database.user
 
 import android.content.SharedPreferences
+import androidx.core.content.edit
 import com.tusxapps.mealapp.data.database.RestaurantDatabase
 import com.tusxapps.mealapp.data.toDomain
 import com.tusxapps.mealapp.data.toSW
-import com.tusxapps.mealapp.domain.meal.Meal
 import com.tusxapps.mealapp.domain.user.Cart
 import com.tusxapps.mealapp.domain.user.User
 import com.tusxapps.mealapp.domain.user.UserRepository
@@ -57,21 +57,24 @@ class UserRepositoryImpl @Inject constructor(
                     password = password,
                     phone = phone,
                     isAdmin = false,
-                    cartJson = ""
+                    cartJson = json.encodeToString(Cart(emptyMap(), 0f))
                 )
             )
             Result.success(Unit)
         }
     }
 
-    override suspend fun getCurrentUser(): Result<User> =
-        try {
-            val currentUser = database.userDao().getAll()
-                .first { it.id == sharedPreferences.getInt(CURRENT_USER_KEY, 1) }
+    override suspend fun getCurrentUser(): Result<User> {
+        return try {
+            val allUsers = database.userDao().getAll()
+            val currentUserId = sharedPreferences.getInt(CURRENT_USER_KEY, -1)
+            val currentUser = allUsers
+                .first { it.id == currentUserId }
             Result.success(currentUser.toDomain())
-        } catch (e: NoSuchElementException) {
+        } catch (e: Exception) {
             Result.failure(e)
         }
+    }
 
     override suspend fun saveCartForCurrentUser(cart: Cart): Result<Unit> {
         return try {
@@ -83,35 +86,54 @@ class UserRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun logout(): Result<Unit> =
+        try {
+            sharedPreferences.edit {
+                putInt(CURRENT_USER_KEY, -1)
+            }
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+
+
     private fun saveCurrentUser(userId: Int) =
-        sharedPreferences.edit().putInt(CURRENT_USER_KEY, userId)
+        sharedPreferences.edit().putInt(CURRENT_USER_KEY, userId).apply()
 
     private suspend fun addUser() {
-        val meals = database.mealDao().getAll()
-            .map {
-                it.toDomain()
-            }
-        val mapMeals = mapOf(meals.first() to 1, meals[2] to 4)
-        val cart = Cart(mapMeals, calculatePrice(mapMeals))
-        database.userDao() //TODO удалить это
-            .insertOne(
+        saveCurrentUser(1)
+        val cart = Cart(emptyMap(), 0f)
+        database.userDao().apply {
+            insertOne(
                 UserSW(
                     id = 1,
-                    login = "Huy@gmail.com",
-                    password = "ignatkotikmeow",
-                    phone = "+79511669071",
+                    login = "",
+                    password = "",
+                    phone = "",
                     isAdmin = false,
                     cartJson = json.encodeToString(cart)
                 )
             )
-        saveCurrentUser(1)
-    }
-
-    private fun calculatePrice(newMeals: Map<Meal, Int>): Float {
-        var newTotalPrice = 0f
-        newMeals.forEach {
-            newTotalPrice += (it.key.price * it.value).toFloat()
+            insertOne(
+                UserSW(
+                    id = 2,
+                    login = "Efim",
+                    password = "asdfg123",
+                    phone = "",
+                    isAdmin = true,
+                    cartJson = json.encodeToString(cart)
+                )
+            )
+            insertOne(
+                UserSW(
+                    id = 3,
+                    login = "Tatyana",
+                    password = "qwer123",
+                    phone = "",
+                    isAdmin = true,
+                    cartJson = json.encodeToString(cart)
+                )
+            )
         }
-        return newTotalPrice
     }
 }

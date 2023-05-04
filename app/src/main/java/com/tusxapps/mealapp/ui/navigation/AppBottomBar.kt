@@ -13,7 +13,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 
 @Composable
 fun AppBottomBar(navController: NavController) {
-    val screens = listOf(Screen.Home, Screen.Cart)
+    val screens = listOf(Screen.Home, Screen.Cart, Screen.Profile)
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
     AnimatedVisibility(visible = screens.any { it.route == currentDestination?.route }) {
@@ -27,7 +27,7 @@ fun AppBottomBar(navController: NavController) {
                                 saveState = true
                             }
                             launchSingleTop = true
-                            restoreState = true
+//                            restoreState = true
                         }
                     },
                     icon = { screen.icon?.let { Icon(imageVector = it, contentDescription = null) } }

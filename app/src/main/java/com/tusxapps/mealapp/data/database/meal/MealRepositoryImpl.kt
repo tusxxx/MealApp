@@ -13,7 +13,7 @@ class MealRepositoryImpl(private val database: RestaurantDatabase) : MealReposit
             if (mealSWs.isEmpty()) { //TODO
                 addMeals()
             }
-            Result.success(mealSWs.map { it.toDomain() })
+            Result.success(database.mealDao().getAll().map { it.toDomain() })
         } catch (e: Exception) {
             Result.failure(e)
         }

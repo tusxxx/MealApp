@@ -66,7 +66,6 @@ fun OrderScreen(navController: NavController, viewModel: OrderViewModel) {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun OrderScreen(
     state: OrderScreenState,
@@ -78,6 +77,32 @@ private fun OrderScreen(
     onOrderCLick: () -> Unit,
     onDialogClosed: () -> Unit,
     onBackClick: () -> Unit,
+) {
+    OrderBody(
+        onBackClick,
+        state,
+        onAddressChange,
+        onManualBuyClick,
+        onSBPClick,
+        onCardClick,
+        onAddCardClick,
+        onOrderCLick,
+        onDialogClosed
+    )
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3Api::class)
+private fun OrderBody(
+    onBackClick: () -> Unit,
+    state: OrderScreenState,
+    onAddressChange: (String) -> Unit,
+    onManualBuyClick: () -> Unit,
+    onSBPClick: () -> Unit,
+    onCardClick: () -> Unit,
+    onAddCardClick: () -> Unit,
+    onOrderCLick: () -> Unit,
+    onDialogClosed: () -> Unit,
 ) {
     Scaffold(topBar = { OrderAppBar(onBackClick) }) { paddingValues ->
         Box(
@@ -111,6 +136,19 @@ private fun OrderScreen(
                 },
                 text = {
                     Text(text = "Курьер вам перезвонит!\nОжидайте")
+                }
+            )
+        }
+        if (state.isHaveActiveOrders) {
+            AlertDialog(
+                onDismissRequest = onDialogClosed,
+                confirmButton = {
+                    OutlinedButton(onClick = onDialogClosed) {
+                        Text(text = "Хорошо")
+                    }
+                },
+                text = {
+                    Text(text = "Вы уже сделали один заказ.\nМы обслуживаем только один заказ за раз")
                 }
             )
         }

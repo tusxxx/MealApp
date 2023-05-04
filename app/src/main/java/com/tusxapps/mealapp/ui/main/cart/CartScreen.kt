@@ -1,5 +1,6 @@
 package com.tusxapps.mealapp.ui.main.cart
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,6 +38,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -49,13 +51,23 @@ import com.tusxapps.mealapp.ui.navigation.Screen
 @Composable
 fun CartScreen(navController: NavController, viewModel: CartViewModel) {
     val state by viewModel.state.collectAsState()
+    val context = LocalContext.current
     CartScreen(
         state = state,
         onMinusItemClick = viewModel::onMinusItemClick,
         onPlusItemClick = viewModel::onPlusItemClick,
         onBuyClick = {},
         onMealClick = { navController.navigate(Screen.Meal.createRoute(it.id)) },
-        onBuyAllClick = { navController.navigate(Screen.Order.route) }
+        onBuyAllClick = {
+            if (state.user?.login != "")
+                navController.navigate(Screen.Order.route)
+            else
+                Toast.makeText(
+                    context,
+                    "Сначала нужно авторизоваться",
+                    Toast.LENGTH_LONG
+                ).show()
+        },
     )
 }
 
@@ -67,33 +79,54 @@ private fun CartScreen(
     onPlusItemClick: (Meal) -> Unit,
     onBuyClick: (Meal) -> Unit,
     onMealClick: (Meal) -> Unit,
-    onBuyAllClick: () -> Unit
+    onBuyAllClick: () -> Unit,
 ) {
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize(),
-        topBar = { CartTopBar(state = state) }) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            CartMealList(
-                state = state,
-                onMinusItemClick = onMinusItemClick,
-                onPlusItemClick = onPlusItemClick,
-                onBuyClick = onBuyClick,
-                onMealClick = onMealClick
-            )
-            Button(
-                onClick = onBuyAllClick,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
-                    .padding(horizontal = 8.dp),
-                enabled = state.meals.isNotEmpty()
-            ) {
-                Text(text = stringResource(R.string.to_buy))
+        topBar = { CartTopBar(state = state) }
+    ) { paddingValues ->
+        when {
+            state.isAdmin -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = "Перейдите в аккаунт пользователя для заказа",
+                        modifier = Modifier.align(Alignment.Center),
+                        textAlign = TextAlign.Center
+                    )
+                }
+            }
+
+            else -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                ) {
+                    CartMealList(
+                        state = state,
+                        onMinusItemClick = onMinusItemClick,
+                        onPlusItemClick = onPlusItemClick,
+                        onBuyClick = onBuyClick,
+                        onMealClick = onMealClick
+                    )
+                    Button(
+                        onClick = onBuyAllClick,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .align(Alignment.BottomCenter)
+                            .padding(horizontal = 8.dp),
+                        enabled = state.meals.isNotEmpty()
+                    ) {
+                        Text(text = stringResource(R.string.to_buy))
+                    }
+                }
             }
         }
     }
@@ -221,7 +254,7 @@ private fun CartTopBar(state: CartScreenState) {
     TopAppBar(
         title = {
             Column(
-                verticalArrangement = Arrangement.spacedBy(4.dp), modifier = Modifier.padding(8.dp)
+                verticalArrangement = Arrangement.spacedBy(2.dp), modifier = Modifier.padding(8.dp)
             ) {
                 Text(
                     text = "Корзина(${state.meals.size})",

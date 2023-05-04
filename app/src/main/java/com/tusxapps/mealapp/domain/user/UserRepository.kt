@@ -6,4 +6,6 @@ interface UserRepository {
     suspend fun getCurrentUser(): Result<User>
 
     suspend fun saveCartForCurrentUser(cart: Cart): Result<Unit>
+
+    suspend fun logout(): Result<Unit>
 }

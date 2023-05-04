@@ -26,7 +26,8 @@ class CartViewModel @Inject constructor(
                 _state.update {
                     it.copy(
                         meals = user.cart.meals,
-                        totalPrice = user.cart.totalPrice
+                        totalPrice = user.cart.totalPrice,
+                        isAdmin = user.isAdmin
                     )
                 }
             }
