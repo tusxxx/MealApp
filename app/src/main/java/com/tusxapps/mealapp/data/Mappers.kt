@@ -42,3 +42,11 @@ fun Meal.toSW() = MealSW(
     price = price,
     imageUrl = imageUrl
 )
+
+fun calculatePrice(newMeals: Map<Meal, Int>): Float {
+    var newTotalPrice = 0f
+    newMeals.forEach {
+        newTotalPrice += (it.key.price * it.value).toFloat()
+    }
+    return newTotalPrice
+}

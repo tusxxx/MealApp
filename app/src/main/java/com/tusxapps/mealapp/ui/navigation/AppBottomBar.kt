@@ -27,7 +27,7 @@ fun AppBottomBar(navController: NavController) {
                                 saveState = true
                             }
                             launchSingleTop = true
-                            restoreState = true
+//                            restoreState = true
                         }
                     },
                     icon = { screen.icon?.let { Icon(imageVector = it, contentDescription = null) } }

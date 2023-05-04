@@ -9,4 +9,5 @@
     <string name="to_buy">К оформлению</string>
     <string name="delivery_adress">Адрес доставки</string>
     <string name="add_to_cart">Добавить в корзину</string>
+    <string name="added_to_cart">добавлено в корзину</string>
 </resources>
