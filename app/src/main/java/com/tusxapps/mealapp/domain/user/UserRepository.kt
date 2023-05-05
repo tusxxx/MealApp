@@ -8,4 +8,6 @@ interface UserRepository {
     suspend fun saveCartForCurrentUser(cart: Cart): Result<Unit>
 
     suspend fun logout(): Result<Unit>
+
+    suspend fun clearCart(): Result<Unit>
 }

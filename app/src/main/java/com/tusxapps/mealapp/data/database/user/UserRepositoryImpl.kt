@@ -22,6 +22,7 @@ class UserRepositoryImpl @Inject constructor(
     private val sharedPreferences: SharedPreferences,
 ) : UserRepository {
     private val json = Json { allowStructuredMapKeys = true }
+
     init {
         CoroutineScope(Job()).launch {
             val users = database.userDao().getAll()
@@ -96,6 +97,21 @@ class UserRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
 
+    override suspend fun clearCart(): Result<Unit> =
+        try {
+            database
+                .userDao()
+                .update(
+                    getCurrentUser()
+                        .getOrThrow()
+                        .copy(cart = Cart(emptyMap(), 0f))
+                        .toSW()
+                )
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+
 
     private fun saveCurrentUser(userId: Int) =
         sharedPreferences.edit().putInt(CURRENT_USER_KEY, userId).apply()
@@ -131,6 +147,16 @@ class UserRepositoryImpl @Inject constructor(
                     password = "qwer123",
                     phone = "",
                     isAdmin = true,
+                    cartJson = json.encodeToString(cart)
+                )
+            )
+            insertOne(
+                UserSW(
+                    id = 4,
+                    login = "test",
+                    password = "test",
+                    phone = "",
+                    isAdmin = false,
                     cartJson = json.encodeToString(cart)
                 )
             )

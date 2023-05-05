@@ -22,24 +22,24 @@ class OrderRepositoryImpl @Inject constructor(
     private val json = Json { allowStructuredMapKeys = true }
 
     init {
-        CoroutineScope(Job()).launch {
-            try {
-                val orders = database.orderDao().getAll()
-                if (orders.isEmpty()) {
-                    database.orderDao().insert(
-                        OrderSW(
-                            date = Date(),
-                            address = "Bruh",
-                            cartJson = json.encodeToString(
-                                userRepository.getCurrentUser().getOrThrow().cart
-                            ),
-                            userId = userRepository.getCurrentUser().getOrThrow().id
-                        )
-                    )
-                }
-            } catch (e: Exception) {
-            }
-        }
+//        CoroutineScope(Job()).launch {
+//            try {
+//                val orders = database.orderDao().getAll()
+//                if (orders.isEmpty()) {
+//                    database.orderDao().insert(
+//                        OrderSW(
+//                            date = Date(),
+//                            address = "Bruh",
+//                            cartJson = json.encodeToString(
+//                                userRepository.getCurrentUser().getOrThrow().cart
+//                            ),
+//                            userId = userRepository.getCurrentUser().getOrThrow().id
+//                        )
+//                    )
+//                }
+//            } catch (e: Exception) {
+//            }
+//        }
     }
 
     override suspend fun getCurrentUsersOrders(): Result<List<Order>> {
@@ -56,7 +56,8 @@ class OrderRepositoryImpl @Inject constructor(
 
     override suspend fun createOrder(order: Order): Result<Unit> =
         try {
-            if (database.orderDao().getAll().isNotEmpty()) throw IllegalStateException("")
+            if (database.orderDao().getAll().any { it.userId == order.userId }) throw IllegalStateException("")
+            userRepository.clearCart()
             database.orderDao().deleteAll()
             database.orderDao().insert(order.toSW())
             Result.success(Unit)
