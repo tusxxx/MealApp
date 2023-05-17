@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 
 @Dao
 interface OrderDao {
@@ -17,5 +18,8 @@ interface OrderDao {
     suspend fun deleteAll()
 
     @Delete
-    suspend fun deleteMeal(order: OrderSW)
+    suspend fun delete(order: OrderSW)
+
+    @Update
+    suspend fun update(order: OrderSW)
 }

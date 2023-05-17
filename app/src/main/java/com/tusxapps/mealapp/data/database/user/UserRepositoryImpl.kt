@@ -112,6 +112,15 @@ class UserRepositoryImpl @Inject constructor(
             Result.failure(e)
         }
 
+    override suspend fun getAll(): Result<List<User>> =
+        try {
+            Result.success(
+                database.userDao().getAll().map { it.toDomain() }
+            )
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+
 
     private fun saveCurrentUser(userId: Int) =
         sharedPreferences.edit().putInt(CURRENT_USER_KEY, userId).apply()

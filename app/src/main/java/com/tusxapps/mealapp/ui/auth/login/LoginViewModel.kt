@@ -30,9 +30,12 @@ class LoginViewModel @Inject constructor(
     fun onLoginClick() {
         viewModelScope.launch(Dispatchers.IO) {
             with(_state.value) {
-                userRepo.login(login, password).onSuccess {
-                    _state.update { it.copy(lce = LCEState.Success) }
-                }
+                userRepo.login(login, password)
+                    .onSuccess {
+                        _state.update { it.copy(lce = LCEState.Success) }
+                    }.onFailure {
+                        _state.update { it.copy(lce = LCEState.Failure("Неверный логин / пароль")) }
+                    }
             }
         }
     }

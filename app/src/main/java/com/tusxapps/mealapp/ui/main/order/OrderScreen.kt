@@ -1,5 +1,6 @@
 package com.tusxapps.mealapp.ui.main.order
 
+import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -36,6 +37,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -49,6 +51,8 @@ import com.tusxapps.mealapp.ui.navigation.Screen
 @Composable
 fun OrderScreen(navController: NavController, viewModel: OrderViewModel) {
     val state by viewModel.state.collectAsState()
+    val context = LocalContext.current
+
     OrderScreen(
         state = state,
         onAddressChange = viewModel::onAddressChange,
@@ -56,7 +60,11 @@ fun OrderScreen(navController: NavController, viewModel: OrderViewModel) {
         onCardClick = viewModel::onCardClick,
         onAddCardClick = {},
         onManualBuyClick = viewModel::onManualBuyClick,
-        onOrderCLick = viewModel::onOrderCLick,
+        onOrderCLick = {
+            viewModel.onOrderCLick {
+                Toast.makeText(context, "Заполните адрес", Toast.LENGTH_SHORT).show()
+            }
+        },
         onDialogClosed = {
             navController.navigate(Screen.Home.route) {
                 popUpTo(Graph.Root.route)
@@ -223,25 +231,6 @@ private fun PaymentCard(
             ) {
                 RadioButton(selected = state.isSBPSelected, onClick = onSBPClick)
                 Text(text = "Оплата через СПБ", fontWeight = FontWeight.SemiBold)
-            }
-            Row(
-                Modifier
-                    .fillMaxWidth()
-                    .clickable { onCardClick() },
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                RadioButton(selected = state.isCardSelected, onClick = onCardClick)
-                Text(text = "Картой ** 2869", fontWeight = FontWeight.SemiBold)
-                Spacer(Modifier.width(4.dp))
-                Icon(painter = painterResource(id = R.drawable.ic_card), null)
-            }
-            TextButton(onClick = onAddCardClick, modifier = Modifier.padding(8.dp)) {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_add_card),
-                    contentDescription = null
-                )
-                Spacer(Modifier.width(4.dp))
-                Text(text = "Добавить карту")
             }
         }
     }

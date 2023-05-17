@@ -1,18 +1,13 @@
 package com.tusxapps.mealapp.data.order
 
+import androidx.compose.ui.graphics.vector.RenderVectorGroup
 import com.tusxapps.mealapp.data.database.RestaurantDatabase
-import com.tusxapps.mealapp.data.database.order.OrderSW
 import com.tusxapps.mealapp.data.toDomain
 import com.tusxapps.mealapp.data.toSW
 import com.tusxapps.mealapp.domain.order.Order
 import com.tusxapps.mealapp.domain.order.OrderRepository
 import com.tusxapps.mealapp.domain.user.UserRepository
-import java.util.Date
 import javax.inject.Inject
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class OrderRepositoryImpl @Inject constructor(
@@ -56,10 +51,38 @@ class OrderRepositoryImpl @Inject constructor(
 
     override suspend fun createOrder(order: Order): Result<Unit> =
         try {
-            if (database.orderDao().getAll().any { it.userId == order.userId }) throw IllegalStateException("")
+            if (database.orderDao().getAll().any { it.userId == order.userId })
+                throw IllegalStateException("")
             userRepository.clearCart()
-            database.orderDao().deleteAll()
+//            database.orderDao().deleteAll()
             database.orderDao().insert(order.toSW())
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+
+    override suspend fun agreeOrder(userId: Int): Result<Unit> =
+        try {
+            val order = database.orderDao().getAll().first { it.userId == userId }
+            database.orderDao().update(order.copy(isAgreed = true))
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+
+    override suspend fun getAll(): Result<List<Order>> =
+        try {
+            val orders = database.orderDao().getAll().map { it.toDomain() }
+            Result.success(orders)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+
+    override suspend fun deleteOrder(userId: Int): Result<Unit> =
+        try {
+            database.orderDao().getAll().firstOrNull { it.userId == userId }?.let {
+                database.orderDao().delete(it)
+            }
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)

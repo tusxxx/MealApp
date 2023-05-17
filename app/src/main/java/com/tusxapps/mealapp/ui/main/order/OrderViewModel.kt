@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @HiltViewModel
 class OrderViewModel @Inject constructor(
@@ -37,17 +38,24 @@ class OrderViewModel @Inject constructor(
         it.copy(isSBPSelected = false, isCardSelected = false, isManualBuySelected = true)
     }
 
-    fun onOrderCLick() {
+    fun onOrderCLick(onError: () -> Unit) {
         viewModelScope.launch(Dispatchers.IO) {
-            userRepository.getCurrentUser()
-                .onSuccess {
-                    orderRepository.createOrder(Order(Date(), it.cart, "NewAdress", it.id))
+            if (_state.value.address.isNotBlank()) {
+                userRepository.getCurrentUser().onSuccess {
+                    orderRepository.createOrder(
+                        Order(
+                            date = Date(),
+                            cart = it.cart,
+                            address = _state.value.address.takeIf { it.isNotBlank() } ?: "Адрес не указан",
+                            userId = it.id,
+                            isAgreed = false,
+                        )
+                    )
                         .onSuccess {
                             _state.update {
                                 it.copy(isDialogShowed = true)
                             }
-                        }
-                        .onFailure {
+                        }.onFailure {
                             if (it is IllegalStateException) {
                                 _state.update {
                                     it.copy(isHaveActiveOrders = true)
@@ -55,6 +63,11 @@ class OrderViewModel @Inject constructor(
                             }
                         }
                 }
+            } else {
+                withContext(Dispatchers.Main) {
+                    onError()
+                }
+            }
         }
     }
 }

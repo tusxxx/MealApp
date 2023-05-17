@@ -1,6 +1,7 @@
 package com.tusxapps.mealapp.ui.main.cart
 
 import android.widget.Toast
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,8 +14,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ElevatedCard
@@ -27,8 +31,12 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,6 +54,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.tusxapps.mealapp.R
 import com.tusxapps.mealapp.domain.meal.Meal
+import com.tusxapps.mealapp.domain.order.Order
 import com.tusxapps.mealapp.ui.navigation.Screen
 
 @Composable
@@ -68,6 +77,9 @@ fun CartScreen(navController: NavController, viewModel: CartViewModel) {
                     Toast.LENGTH_LONG
                 ).show()
         },
+        onDisagreeClick = viewModel::onDisagreeClick,
+        onAgreeClick = viewModel::onAgreeClick,
+        getUserPhone = viewModel::getUserPhone
     )
 }
 
@@ -80,6 +92,9 @@ private fun CartScreen(
     onBuyClick: (Meal) -> Unit,
     onMealClick: (Meal) -> Unit,
     onBuyAllClick: () -> Unit,
+    onAgreeClick: (Order) -> Unit,
+    onDisagreeClick: (Order) -> Unit,
+    getUserPhone: suspend (Int) -> String
 ) {
 
     Scaffold(
@@ -89,17 +104,69 @@ private fun CartScreen(
     ) { paddingValues ->
         when {
             state.isAdmin -> {
-                Box(
+                LazyColumn(
                     modifier = Modifier
-                        .fillMaxSize()
                         .padding(paddingValues)
                         .padding(16.dp)
+                        .fillMaxWidth()
                 ) {
-                    Text(
-                        text = "Перейдите в аккаунт пользователя для заказа",
-                        modifier = Modifier.align(Alignment.Center),
-                        textAlign = TextAlign.Center
-                    )
+                    items(state.orders) {
+                        ElevatedCard(Modifier.padding(8.dp)) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Row(
+                                    Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    IconButton(onClick = { onDisagreeClick(it) }) {
+                                        Icon(
+                                            painter = painterResource(id = R.drawable.ic_remove),
+                                            contentDescription = null
+                                        )
+                                    }
+                                    LazyRow(Modifier.weight(1f)) {
+                                        items(it.cart.meals.toList()) {
+                                            Column(
+                                                Modifier
+                                                    .padding(8.dp)
+                                                    .clickable { onMealClick(it.first) },
+                                                horizontalAlignment = Alignment.CenterHorizontally
+                                            ) {
+                                                AsyncImage(
+                                                    model = ImageRequest.Builder(LocalContext.current)
+                                                        .data(it.first.imageUrl)
+                                                        .crossfade(true).build(),
+                                                    contentDescription = null,
+                                                    modifier = Modifier
+                                                        .size(64.dp)
+                                                        .clip(RoundedCornerShape(8.dp)),
+                                                    contentScale = ContentScale.Crop
+                                                )
+                                                Text(text = it.second.toString())
+                                            }
+                                        }
+                                    }
+                                    IconButton(onClick = { onAgreeClick(it) }) {
+                                        Icon(
+                                            imageVector = Icons.Filled.Done,
+                                            contentDescription = null
+                                        )
+                                    }
+                                }
+                                Text(text = it.address)
+                                var userPhone by remember {
+                                    mutableStateOf("")
+                                }
+
+                                LaunchedEffect(Unit) {
+                                    userPhone = getUserPhone(it.userId)
+                                }
+                                Text(text = userPhone)
+                            }
+                        }
+                    }
                 }
             }
 
@@ -256,17 +323,26 @@ private fun CartTopBar(state: CartScreenState) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(2.dp), modifier = Modifier.padding(8.dp)
             ) {
-                Text(
-                    text = "Корзина(${state.meals.size})",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 22.sp,
-                    color = Color.White
-                )
-                Text(
-                    text = "К оплате: ${state.totalPrice}",
-                    color = Color.LightGray,
-                    fontSize = 16.sp
-                )
+                if (!state.isAdmin) {
+                    Text(
+                        text = "Корзина(${state.meals.size})",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 22.sp,
+                        color = Color.White
+                    )
+                    Text(
+                        text = "К оплате: ${state.totalPrice}",
+                        color = Color.LightGray,
+                        fontSize = 16.sp
+                    )
+                } else {
+                    Text(
+                        text = "Заказы",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 22.sp,
+                        color = Color.White
+                    )
+                }
             }
         },
         colors = TopAppBarDefaults.smallTopAppBarColors(containerColor = MaterialTheme.colorScheme.primary)

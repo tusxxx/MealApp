@@ -3,6 +3,7 @@ package com.tusxapps.mealapp.ui.main.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tusxapps.mealapp.domain.meal.MealRepository
+import com.tusxapps.mealapp.domain.user.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.Locale
 import javax.inject.Inject
@@ -15,6 +16,7 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val mealRepo: MealRepository,
+    private val userRepo: UserRepository
 ) : ViewModel() {
     private val _state = MutableStateFlow(HomeScreenState())
     val state get() = _state.asStateFlow()
@@ -23,6 +25,9 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             mealRepo.getAll().onSuccess { meals ->
                 _state.update { it.copy(filteredMeals = meals, allMeals = meals) }
+            }
+            userRepo.getCurrentUser().onSuccess { user ->
+                _state.update { it.copy(user = user)}
             }
         }
     }

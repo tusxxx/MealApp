@@ -31,6 +31,8 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.tusxapps.mealapp.R
+import com.tusxapps.mealapp.ui.navigation.Graph
+import com.tusxapps.mealapp.ui.navigation.Screen
 
 @Composable
 fun MealScreen(navController: NavController, viewModel: MealViewModel, mealId: Int) {
@@ -41,25 +43,32 @@ fun MealScreen(navController: NavController, viewModel: MealViewModel, mealId: I
     LaunchedEffect(mealId) {
         viewModel.setMeal(mealId)
     }
-    MealScreen(
-        state = state,
-        onAddToCartClick = {
-            viewModel.onAddToCartClick()
-            Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
-            navController.popBackStack()
+    MealScreen(state = state, onAddToCartClick = {
+        viewModel.onAddToCartClick()
+        Toast.makeText(context, toastText, Toast.LENGTH_SHORT).show()
+        navController.popBackStack()
+    }, onEditClick = {
+        state.meal?.id?.let {
+            navController.navigate(Screen.CreateMeal.createRoute(it))
         }
-    )
+    }, onDeleteMeal = {
+        viewModel.onDeleteMeal(onSuccess = {
+            navController.navigate(Graph.Main.route)
+        })
+    })
 }
 
 @Composable
-private fun MealScreen(state: MealScreenState, onAddToCartClick: () -> Unit) {
+private fun MealScreen(
+    state: MealScreenState,
+    onAddToCartClick: () -> Unit,
+    onEditClick: () -> Unit,
+    onDeleteMeal: () -> Unit,
+) {
     Box(Modifier.fillMaxSize()) {
         AsyncImage(
-            model = ImageRequest
-                .Builder(LocalContext.current)
-                .data(state.meal?.imageUrl)
-                .crossfade(true)
-                .build(),
+            model = ImageRequest.Builder(LocalContext.current).data(state.meal?.imageUrl)
+                .crossfade(true).build(),
             contentDescription = null,
             modifier = Modifier
                 .fillMaxWidth()
@@ -94,14 +103,35 @@ private fun MealScreen(state: MealScreenState, onAddToCartClick: () -> Unit) {
                 Spacer(Modifier.height(48.dp))
             }
         }
-        Button(
-            onClick = onAddToCartClick,
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter)
-                .padding(32.dp)
-        ) {
-            Text(text = stringResource(R.string.add_to_cart))
+        if (state.user?.isAdmin == false) {
+            Button(
+                onClick = onAddToCartClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter)
+                    .padding(32.dp)
+            ) {
+                Text(text = stringResource(R.string.add_to_cart))
+            }
+        }
+        if (state.user?.isAdmin == true) {
+            Column(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(32.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Button(
+                    onClick = onEditClick, modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(text = "Редактировать")
+                }
+                Button(
+                    onClick = onDeleteMeal, modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(text = "Удалить")
+                }
+            }
         }
     }
 }

@@ -24,6 +24,7 @@ import com.tusxapps.mealapp.R
 import com.tusxapps.mealapp.ui.composables.LCE
 import com.tusxapps.mealapp.ui.composables.LCEState
 import com.tusxapps.mealapp.ui.navigation.Graph
+import com.tusxapps.mealapp.ui.navigation.Screen
 
 @Composable
 fun LoginScreen(navController: NavController, viewModel: LoginViewModel) {
@@ -41,7 +42,8 @@ fun LoginScreen(navController: NavController, viewModel: LoginViewModel) {
         state = state,
         onLoginChange = viewModel::onLoginChange,
         onPasswordChange = viewModel::onPasswordChange,
-        onLoginClick = viewModel::onLoginClick
+        onLoginClick = viewModel::onLoginClick,
+        onRegisterClick = { navController.navigate(Screen.Register.route) }
     )
 }
 
@@ -51,12 +53,13 @@ private fun LoginScreen(
     state: LoginScreenState,
     onLoginChange: (String) -> Unit,
     onPasswordChange: (String) -> Unit,
-    onLoginClick: () -> Unit
+    onLoginClick: () -> Unit,
+    onRegisterClick: () -> Unit,
 ) {
     LCE(lce = state.lce) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             TextButton(
-                onClick = { },
+                onClick = onRegisterClick,
                 modifier = Modifier
                     .align(Alignment.TopEnd)
                     .padding(8.dp)
@@ -93,6 +96,11 @@ private fun LoginScreen(
                 OutlinedButton(onClick = onLoginClick) {
                     Text(text = stringResource(R.string.enter))
                 }
+
+                Text(
+                    text = (state.lce as? LCEState.Failure)?.message.orEmpty(),
+                    color = MaterialTheme.colorScheme.error
+                )
             }
         }
     }

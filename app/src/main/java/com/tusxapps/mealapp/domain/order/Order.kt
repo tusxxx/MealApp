@@ -7,5 +7,6 @@ data class Order(
     val date: Date,
     val cart: Cart,
     val address: String,
-    val userId: Int
+    val userId: Int,
+    val isAgreed: Boolean
 )

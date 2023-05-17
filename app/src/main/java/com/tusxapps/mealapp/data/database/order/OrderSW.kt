@@ -22,4 +22,5 @@ data class OrderSW(
     val address: String,
     val cartJson: String,
     val userId: Int,
+    val isAgreed: Boolean = false
 )

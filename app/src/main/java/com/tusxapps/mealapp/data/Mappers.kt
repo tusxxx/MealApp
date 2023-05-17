@@ -49,14 +49,16 @@ fun OrderSW.toDomain() = Order(
     address = address,
     date = date,
     cart = json.decodeFromString(cartJson),
-    userId = userId
+    userId = userId,
+    isAgreed = isAgreed
 )
 
 fun Order.toSW() = OrderSW(
     date = date,
     address = address,
     cartJson = json.encodeToString(cart),
-    userId = userId
+    userId = userId,
+    isAgreed = isAgreed
 )
 
 fun calculatePrice(newMeals: Map<Meal, Int>): Float {

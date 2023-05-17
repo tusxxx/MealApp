@@ -10,4 +10,6 @@ interface UserRepository {
     suspend fun logout(): Result<Unit>
 
     suspend fun clearCart(): Result<Unit>
+
+    suspend fun getAll(): Result<List<User>>
 }

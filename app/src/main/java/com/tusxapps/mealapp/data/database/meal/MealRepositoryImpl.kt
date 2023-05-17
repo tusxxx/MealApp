@@ -18,9 +18,21 @@ class MealRepositoryImpl(private val database: RestaurantDatabase) : MealReposit
             Result.failure(e)
         }
 
-    override suspend fun createMeal(meal: Meal): Result<Unit> =
+    override suspend fun createMeal(
+        mealName: String,
+        mealDesc: String,
+        mealPrice: Float,
+        imageUrl: String,
+    ): Result<Unit> =
         try {
-            database.mealDao().insertOne(meal.toSW())
+            database.mealDao().insertOne(
+                MealSW(
+                    name = mealName,
+                    description = mealDesc,
+                    price = mealPrice.toDouble(),
+                    imageUrl = imageUrl
+                )
+            )
             Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)

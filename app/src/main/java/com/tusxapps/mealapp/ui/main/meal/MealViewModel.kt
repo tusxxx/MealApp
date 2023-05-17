@@ -13,11 +13,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.withContext
 
 @HiltViewModel
 class MealViewModel @Inject constructor(
     private val mealsRepository: MealRepository,
-    private val usersRepository: UserRepository
+    private val usersRepository: UserRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(MealScreenState())
     val state get() = _state.asStateFlow()
@@ -28,6 +29,9 @@ class MealViewModel @Inject constructor(
                 it.find { it.id == mealId }?.let { meal ->
                     _state.update { it.copy(meal = meal) }
                 }
+            }
+            usersRepository.getCurrentUser().onSuccess { user ->
+                _state.update { it.copy(user = user) }
             }
         }
     }
@@ -47,6 +51,18 @@ class MealViewModel @Inject constructor(
                     }
                     usersRepository.saveCartForCurrentUser(Cart(newMeals, calculatePrice(newMeals)))
                 }
+        }
+    }
+
+    fun onDeleteMeal(onSuccess: () -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _state.value.meal?.let {
+                mealsRepository.deleteMeal(it).onSuccess {
+                    withContext(Dispatchers.Main) {
+                        onSuccess()
+                    }
+                }
+            }
         }
     }
 }

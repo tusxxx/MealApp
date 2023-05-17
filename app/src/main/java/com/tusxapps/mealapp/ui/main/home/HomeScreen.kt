@@ -17,12 +17,14 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -57,7 +59,10 @@ fun HomeScreen(navController: NavController, viewModel: HomeViewModel) {
         state = state,
         onMealClick = { navController.navigate(Screen.Meal.createRoute(it.id)) },
         onSearchValueChange = viewModel::onSearchValueChange,
-        onFilterSelect = viewModel::onFilterSelect
+        onFilterSelect = viewModel::onFilterSelect,
+        onAddMealClick = {
+            navController.navigate(Screen.CreateMeal.createRoute(null))
+        }
     )
 }
 
@@ -68,6 +73,7 @@ private fun HomeScreen(
     onMealClick: (Meal) -> Unit,
     onSearchValueChange: (newQuery: String) -> Unit,
     onFilterSelect: (FilterTag) -> Unit,
+    onAddMealClick: () -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -78,9 +84,19 @@ private fun HomeScreen(
                 filterTag = state.filterTag
             )
         },
+        floatingActionButton = { AdminFAB(onAddMealClick, state) },
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
         HomeBody(paddingValues, state, onMealClick)
+    }
+}
+
+@Composable
+fun AdminFAB(onAddMealClick: () -> Unit, state: HomeScreenState) {
+    if (state.user?.isAdmin == true) {
+        FloatingActionButton(onClick = onAddMealClick) {
+            Icon(imageVector = Icons.Filled.Add, contentDescription = null)
+        }
     }
 }
 

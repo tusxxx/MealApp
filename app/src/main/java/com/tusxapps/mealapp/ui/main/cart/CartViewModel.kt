@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tusxapps.mealapp.data.calculatePrice
 import com.tusxapps.mealapp.domain.meal.Meal
+import com.tusxapps.mealapp.domain.order.Order
+import com.tusxapps.mealapp.domain.order.OrderRepository
 import com.tusxapps.mealapp.domain.user.Cart
 import com.tusxapps.mealapp.domain.user.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,21 +19,14 @@ import javax.inject.Inject
 @HiltViewModel
 class CartViewModel @Inject constructor(
     private val userRepo: UserRepository,
+    private val orderRepository: OrderRepository,
 ) : ViewModel() {
     private val _state = MutableStateFlow(CartScreenState())
     val state get() = _state.asStateFlow()
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            userRepo.getCurrentUser().onSuccess { user ->
-                _state.update {
-                    it.copy(
-                        meals = user.cart.meals,
-                        totalPrice = user.cart.totalPrice,
-                        isAdmin = user.isAdmin
-                    )
-                }
-            }
+            updateState()
         }
     }
 
@@ -70,5 +65,41 @@ class CartViewModel @Inject constructor(
                 it.copy(meals = cart.meals, totalPrice = cart.totalPrice)
             }
         }
+    }
+
+    fun onAgreeClick(order: Order) {
+        viewModelScope.launch(Dispatchers.IO) {
+            orderRepository.agreeOrder(order.userId)
+            updateState()
+        }
+    }
+
+    fun onDisagreeClick(order: Order) {
+        viewModelScope.launch(Dispatchers.IO) {
+            orderRepository.deleteOrder(order.userId)
+            updateState()
+        }
+    }
+
+    private suspend fun updateState() {
+        userRepo.getCurrentUser().onSuccess { user ->
+            _state.update {
+                it.copy(
+                    meals = user.cart.meals,
+                    totalPrice = user.cart.totalPrice,
+                    isAdmin = user.isAdmin
+                )
+            }
+        }
+        if (_state.value.isAdmin) {
+            orderRepository.getAll().onSuccess { orders ->
+                _state.update { it.copy(orders = orders) }
+            }
+        }
+    }
+
+    suspend fun getUserPhone(userId: Int): String {
+        return userRepo.getAll().getOrDefault(emptyList())
+            .firstOrNull { it.id == userId }?.login.orEmpty()
     }
 }

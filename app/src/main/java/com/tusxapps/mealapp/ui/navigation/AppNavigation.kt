@@ -15,10 +15,12 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tusxapps.mealapp.ui.auth.login.LoginScreen
+import com.tusxapps.mealapp.ui.auth.register.RegisterScreen
 import com.tusxapps.mealapp.ui.main.profile.ProfileScreen
 import com.tusxapps.mealapp.ui.main.cart.CartScreen
 import com.tusxapps.mealapp.ui.main.home.HomeScreen
 import com.tusxapps.mealapp.ui.main.meal.MealScreen
+import com.tusxapps.mealapp.ui.main.meal.create.CreateMealScreen
 import com.tusxapps.mealapp.ui.main.order.OrderScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,7 +47,7 @@ private fun NavGraphBuilder.authGraph(navController: NavHostController) {
             LoginScreen(navController = navController, viewModel = hiltViewModel())
         }
         composable(Screen.Register.route) {
-
+            RegisterScreen(navController = navController, viewModel = hiltViewModel())
         }
     }
 }
@@ -69,6 +71,16 @@ private fun NavGraphBuilder.mainGraph(navController: NavHostController) {
                     mealId = mealName
                 )
             }
+        }
+        composable(
+            route = Screen.CreateMeal.route,
+            arguments = listOf(navArgument("mealId") { type = NavType.IntType })
+        ) {
+            CreateMealScreen(
+                navController = navController,
+                viewModel = hiltViewModel(),
+                mealId = it.arguments?.getInt("mealId")
+            )
         }
         composable(
             route = Screen.Order.route
